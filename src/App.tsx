@@ -1,7 +1,6 @@
-import { Badge, Drawer, Grid, LinearProgress } from "@material-ui/core";
+import { Badge, Drawer, Grid,  } from "@material-ui/core";
 import { AddShoppingCart } from "@material-ui/icons";
-import {  useState } from "react";
-import { useQuery } from "react-query";
+import { useEffect, useState } from "react";
 import { StyledButton, Wrapper } from "./App.style";
 import Cart from "./Cart/Cart";
 import Item from "./Item/Item";
@@ -16,17 +15,23 @@ export type CartItemType = {
   amount: number;
 };
 
-const getProducts = async (): Promise<CartItemType[]> =>
-  await (await fetch("https://fakestoreapi.com/products")).json();
 
-const  App: React.FC =() => {
+
+const App: React.FC = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([] as CartItemType[]);
-  const { data, isLoading, error } = useQuery<CartItemType[]>(
-    "products",
-    getProducts
-  );
 
+
+  const [data, setData] = useState([] as CartItemType[])
+
+  useEffect(() => {
+    const getProducts = async () =>{
+      const res = await (await fetch("https://fakestoreapi.com/products")).json();
+      setData(res)
+    }
+
+    getProducts()
+  }, []);
   const getTotalItems = (items: CartItemType[]) =>
     items.reduce((ack: number, item) => ack + item.amount, 0);
 
@@ -61,8 +66,6 @@ const  App: React.FC =() => {
     );
   };
 
-  if (isLoading) return <LinearProgress />;
-  if (error) return <div>...</div>;
 
   console.log(data);
   return (
@@ -88,6 +91,6 @@ const  App: React.FC =() => {
       </Grid>
     </Wrapper>
   );
-}
+};
 
 export default App;
